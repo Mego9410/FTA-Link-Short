@@ -3,22 +3,43 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { store } from "@/lib/store";
+import { store, storeBackend } from "@/lib/store";
 import { SESSION_COOKIE, sessionToken, checkPassword } from "@/lib/auth";
 import { normalizeUrl } from "@/lib/url";
 
 export type ActionState = { error?: string } | null;
 
+/**
+ * The local JSON file store can't persist on a serverless host (read-only
+ * filesystem). Block writes there with a clear message instead of crashing.
+ */
+function storageUnavailable(): ActionState {
+  if (storeBackend === "file" && process.env.VERCEL) {
+    return {
+      error:
+        "Persistent storage isn't configured. On Vercel, add the Upstash Redis (KV) integration so links can be saved, then redeploy.",
+    };
+  }
+  return null;
+}
+
 export async function login(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const token = sessionToken();
+  if (!token) {
+    return {
+      error:
+        "This site isn't configured yet: the APP_PASSWORD environment variable is missing. Set it in your hosting provider (e.g. Vercel) and redeploy.",
+    };
+  }
   const password = String(formData.get("password") ?? "");
   if (!checkPassword(password)) {
     return { error: "Incorrect password. Please try again." };
   }
-  const store = await cookies();
-  store.set(SESSION_COOKIE, sessionToken(), {
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -29,8 +50,8 @@ export async function login(
 }
 
 export async function logout(): Promise<void> {
-  const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE);
   redirect("/login");
 }
 
@@ -38,6 +59,9 @@ export async function createCompany(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const unavailable = storageUnavailable();
+  if (unavailable) return unavailable;
+
   const name = String(formData.get("name") ?? "");
   const result = await store.createCompany(name);
   if (!result.ok) return { error: result.error };
@@ -50,6 +74,9 @@ export async function createLink(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const unavailable = storageUnavailable();
+  if (unavailable) return unavailable;
+
   const slug = String(formData.get("slug") ?? "");
   const rawUrl = String(formData.get("original_url") ?? "");
   const title = String(formData.get("title") ?? "").trim();

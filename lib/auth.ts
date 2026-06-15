@@ -4,24 +4,32 @@ import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "fta_session";
 
-function appPassword(): string {
-  const pwd = process.env.APP_PASSWORD;
-  if (!pwd) {
-    throw new Error("Missing APP_PASSWORD. Add it to .env.local (see .env.example).");
-  }
-  return pwd;
+/** The configured password, or null when the server hasn't been set up. */
+function appPassword(): string | null {
+  return process.env.APP_PASSWORD || null;
 }
 
-/** Opaque token derived from the password; can't be forged without knowing it. */
-export function sessionToken(): string {
-  return createHash("sha256").update(`fta:${appPassword()}`).digest("hex");
+/** True when APP_PASSWORD is configured. */
+export function isConfigured(): boolean {
+  return appPassword() !== null;
+}
+
+/** Opaque token derived from the password; null when unconfigured. */
+export function sessionToken(): string | null {
+  const pwd = appPassword();
+  if (!pwd) return null;
+  return createHash("sha256").update(`fta:${pwd}`).digest("hex");
 }
 
 export function checkPassword(candidate: string): boolean {
-  return candidate === appPassword();
+  const pwd = appPassword();
+  if (!pwd) return false;
+  return candidate === pwd;
 }
 
 export async function isAuthenticated(): Promise<boolean> {
+  const token = sessionToken();
+  if (!token) return false;
   const store = await cookies();
-  return store.get(SESSION_COOKIE)?.value === sessionToken();
+  return store.get(SESSION_COOKIE)?.value === token;
 }
