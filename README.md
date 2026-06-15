@@ -11,7 +11,7 @@ Each company gets short links under its own path on the app's domain:
 {your-app-origin}/{business-slug}/{short-code}
 ```
 
-For example, on the deployed Vercel domain: `fta-link.vercel.app/acme-dental/HaB7hs`.
+For example, on the deployed domain: `fta-short.link/acme-dental/HaB7hs`.
 The displayed link and the working link are the same, set by `NEXT_PUBLIC_SITE_URL`.
 
 ## Storage (no separate database to manage)
@@ -79,12 +79,17 @@ Your data lives in `./.data/db.json` (git-ignored).
    database, then **connect** it to the project. This injects `UPSTASH_REDIS_REST_URL` and
    `UPSTASH_REDIS_REST_TOKEN` automatically.
 3. Add the remaining env vars in the Vercel project settings:
-   - `NEXT_PUBLIC_SITE_URL` = your deployed URL (e.g. `https://fta-link.vercel.app`)
+   - `NEXT_PUBLIC_SITE_URL` = your deployed URL (e.g. `https://fta-short.link`)
    - `APP_PASSWORD` = your shared password
-4. Deploy. Short links resolve at `https://fta-link.vercel.app/{slug}/{code}` and persist in
+4. Deploy. Short links resolve at `https://fta-short.link/{slug}/{code}` and persist in
    Redis.
 
-## Upgrading to a custom domain (optional)
+## Custom domain
 
-If you ever add a custom domain in Vercel, just set `NEXT_PUBLIC_SITE_URL` to it and the
-displayed/working links update automatically. No code changes needed.
+The app is served from the custom domain `fta-short.link`:
+
+1. Vercel → project → **Settings → Domains** → add `fta-short.link`.
+2. At the domain registrar, add the DNS records Vercel shows (an `A` record on the apex
+   pointing to Vercel's IP, or switch to Vercel's nameservers). Wait for verification + SSL.
+3. Set `NEXT_PUBLIC_SITE_URL=https://fta-short.link` in the Vercel env vars and redeploy so
+   the displayed/working short links use the new domain. No code changes needed.
