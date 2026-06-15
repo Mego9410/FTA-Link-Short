@@ -4,7 +4,7 @@ import path from "node:path";
 import type { Company, LinkRow, ClickRow } from "@/lib/types";
 import { slugify } from "@/lib/slug";
 import { makeShortCode } from "@/lib/shortcode";
-import type { Store, CreateResult } from "./store";
+import type { Store, CreateResult, ClickEvent } from "./store";
 
 type RawCompany = { name: string; slug: string; created_at: string };
 type RawLink = {
@@ -192,6 +192,15 @@ export const fileStore: Store = {
         referrer: c.referrer,
         user_agent: c.user_agent,
       }));
+  },
+
+  async companyClickEvents(slug: string, sinceMs: number): Promise<ClickEvent[]> {
+    const db = await readDB();
+    return db.clicks
+      .filter(
+        (c) => c.slug === slug && new Date(c.created_at).getTime() >= sinceMs
+      )
+      .map((c) => ({ code: c.code, created_at: c.created_at }));
   },
 
   async companyStats(slug: string): Promise<{ links: number; clicks: number }> {

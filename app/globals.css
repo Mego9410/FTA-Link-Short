@@ -275,6 +275,27 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .copy-link-btn svg { width: 16px; height: 16px; }
 .copy-flag { font-size: 12px; font-weight: 700; color: var(--gold-deep); }
 
+/* time-series chart */
+.chart-panel { margin-bottom: var(--sp-12); }
+.chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.range-group { display: inline-flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 4px; }
+.range-btn { border: none; background: transparent; color: var(--fg-2); font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: var(--r-pill); cursor: pointer; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+.range-btn:hover { color: var(--fg-1); }
+.range-btn.active { background: var(--ink); color: #fff; }
+.chart-canvas { position: relative; width: 100%; }
+.chart-svg { width: 100%; height: auto; display: block; }
+.chart-axis { font-size: 11px; fill: var(--fg-3); font-family: var(--font-sans); }
+.chart-overlay { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg-3); font-size: 14px; font-weight: 600; pointer-events: none; }
+.chart-empty { padding: 40px 0; text-align: center; color: var(--fg-3); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.legend-item { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--border); border-radius: var(--r-pill); padding: 6px 12px 6px 10px; cursor: pointer; transition: border-color var(--dur) var(--ease), opacity var(--dur) var(--ease); font: inherit; }
+.legend-item:hover { border-color: var(--gold); }
+.legend-item.off { opacity: 0.45; }
+.legend-item.off .legend-swatch { background: var(--fg-4) !important; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.legend-label { font-size: 13px; font-weight: 600; color: var(--fg-1); }
+.legend-total { font-size: 12px; font-weight: 700; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+
 /* mini bar chart */
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding: 8px 4px 0; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }

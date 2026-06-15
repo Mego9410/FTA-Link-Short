@@ -2,6 +2,9 @@ import type { Company, LinkRow, ClickRow } from "@/lib/types";
 
 export type CreateResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
+/** A single click tied to its link's short code (for company-wide charts). */
+export type ClickEvent = { code: string; created_at: string };
+
 /**
  * Storage contract shared by both backends (local JSON file and Upstash Redis).
  * The rest of the app only ever talks to this interface.
@@ -28,6 +31,9 @@ export interface Store {
   ): Promise<string | null>;
 
   recentClicks(slug: string, code: string, limit: number): Promise<ClickRow[]>;
+
+  /** All click events for a company since `sinceMs` (epoch ms), per link code. */
+  companyClickEvents(slug: string, sinceMs: number): Promise<ClickEvent[]>;
 
   companyStats(slug: string): Promise<{ links: number; clicks: number }>;
 }

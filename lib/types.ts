@@ -22,3 +22,19 @@ export type ClickRow = {
   referrer: string | null;
   user_agent: string | null;
 };
+
+export type LinkDailySeries = {
+  id: string;
+  code: string;
+  label: string;
+  total: number;
+  daily: number[];
+};
+
+export type CompanyClickSeries = {
+  /** UTC date keys (yyyy-mm-dd), oldest first, one per day. */
+  dayKeys: string[];
+  /** Human-friendly labels matching dayKeys (e.g. "3 Jun"). */
+  labels: string[];
+  links: LinkDailySeries[];
+};

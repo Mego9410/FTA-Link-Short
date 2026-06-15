@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis";
 import type { Company, LinkRow, ClickRow } from "@/lib/types";
 import { slugify } from "@/lib/slug";
 import { makeShortCode } from "@/lib/shortcode";
-import type { Store, CreateResult } from "./store";
+import type { Store, CreateResult, ClickEvent } from "./store";
 
 type StoredCompany = { name: string; slug: string; created_at: string };
 type StoredLink = {
@@ -177,6 +177,24 @@ export const redisStore: Store = {
       referrer: c.referrer,
       user_agent: c.user_agent,
     }));
+  },
+
+  async companyClickEvents(slug: string, sinceMs: number): Promise<ClickEvent[]> {
+    const r = redis();
+    const codes = await r.zrange<string[]>(kLinks(slug), 0, -1, { rev: true });
+    if (!codes.length) return [];
+    const lists = await Promise.all(
+      codes.map((code) => r.lrange<StoredClick>(kClicks(slug, code), 0, CLICK_CAP - 1))
+    );
+    const out: ClickEvent[] = [];
+    codes.forEach((code, i) => {
+      for (const c of lists[i]) {
+        if (c && new Date(c.created_at).getTime() >= sinceMs) {
+          out.push({ code, created_at: c.created_at });
+        }
+      }
+    });
+    return out;
   },
 
   async companyStats(slug: string): Promise<{ links: number; clicks: number }> {

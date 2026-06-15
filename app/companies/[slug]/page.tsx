@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import CreateLinkForm from "@/app/components/CreateLinkForm";
 import CopyLink from "@/app/components/CopyLink";
-import { getCompanyBySlug, getLinksForCompany } from "@/lib/data";
+import ClicksChart from "@/app/components/ClicksChart";
+import {
+  getCompanyBySlug,
+  getLinksForCompany,
+  getCompanyClickSeries,
+} from "@/lib/data";
 import { displayHost, workingUrl } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +24,7 @@ export default async function CompanyPage({
 
   const links = await getLinksForCompany(company.slug);
   const totalClicks = links.reduce((n, l) => n + l.click_count, 0);
+  const clickSeries = await getCompanyClickSeries(company.slug, 90);
 
   return (
     <>
@@ -55,6 +61,8 @@ export default async function CompanyPage({
             <div className="v">{totalClicks}</div>
           </div>
         </div>
+
+        {links.length > 0 ? <ClicksChart series={clickSeries} /> : null}
 
         <div
           className="dash-split"
