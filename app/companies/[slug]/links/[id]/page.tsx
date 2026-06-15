@@ -161,11 +161,11 @@ export default async function LinkStatsPage({
               <tbody>
                 {clicks.slice(0, 100).map((c, i) => (
                   <tr key={`${c.created_at}-${i}`}>
-                    <td className="num" style={{ fontWeight: 500, color: "var(--fg-2)" }}>
+                    <td className="num nowrap" style={{ fontWeight: 500, color: "var(--fg-2)" }} data-label="When">
                       {new Date(c.created_at).toLocaleString("en-GB")}
                     </td>
-                    <td>{c.referrer || <span className="meta">Direct</span>}</td>
-                    <td>
+                    <td data-label="Referrer">{c.referrer || <span className="meta">Direct</span>}</td>
+                    <td className="cell-wide" data-label="Device / browser">
                       <span className="truncate" style={{ display: "block" }} title={c.user_agent || ""}>
                         {c.user_agent || <span className="meta">Unknown</span>}
                       </span>

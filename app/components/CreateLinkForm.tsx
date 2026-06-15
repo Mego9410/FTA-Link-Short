@@ -3,23 +3,34 @@
 import { useActionState, useEffect, useRef } from "react";
 import { createLink, type ActionState } from "@/app/actions";
 
-export default function CreateLinkForm({ slug }: { slug: string }) {
+export default function CreateLinkForm({
+  slug,
+  onSuccess,
+}: {
+  slug: string;
+  onSuccess?: () => void;
+}) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     createLink,
     null
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const wasPending = useRef(false);
 
-  // Clear the inputs after a successful create (action returns null on success).
+  // Detect a completed submission: pending goes true -> false. If there's no
+  // error in the returned state, treat it as a success (reset + notify caller).
   useEffect(() => {
-    if (state === null) formRef.current?.reset();
-  }, [state]);
+    if (wasPending.current && !pending) {
+      if (!state?.error) {
+        formRef.current?.reset();
+        onSuccess?.();
+      }
+    }
+    wasPending.current = pending;
+  }, [pending, state, onSuccess]);
 
   return (
-    <form action={formAction} ref={formRef} className="panel">
-      <h3 className="h3" style={{ marginBottom: 16 }}>
-        Create a short link
-      </h3>
+    <form action={formAction} ref={formRef}>
       {state?.error ? <div className="alert alert-error">{state.error}</div> : null}
       <input type="hidden" name="slug" value={slug} />
 

@@ -305,12 +305,152 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .bar-label { font-size: 10.5px; color: var(--fg-3); white-space: nowrap; }
 .bar-count { font-size: 11px; font-weight: 700; color: var(--fg-1); }
 
+/* new link button (icon + label) */
+.new-link-btn { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.new-link-btn svg { width: 16px; height: 16px; }
+
+/* links table extras */
+.nowrap { white-space: nowrap; }
+.tbl-links td .truncate { max-width: 280px; }
+
+/* per-row sparkline */
+.spark { display: block; }
+.spark-line { fill: none; stroke: var(--gold-deep); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.spark-area { fill: var(--gold-tint); stroke: none; }
+.spark-flat { stroke: var(--border); stroke-width: 1.4; stroke-dasharray: 3 3; }
+
+/* modal / dialog */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(20, 18, 12, 0.46);
+  display: grid; place-items: center; padding: 24px;
+  animation: modalFade 0.15s var(--ease);
+}
+.modal-card {
+  width: 100%; max-width: 460px; background: #fff;
+  border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
+  padding: 28px; animation: modalRise 0.2s var(--ease-out);
+  max-height: calc(100dvh - 48px); overflow-y: auto;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.modal-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex: none; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: #fff; color: var(--fg-2); cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.modal-close:hover { border-color: var(--gold); color: var(--gold-deep); background: var(--gold-tint); }
+.modal-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.modal-close svg { width: 18px; height: 18px; }
+@keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
 /* footer */
 .foot { border-top: 1px solid var(--border); padding: 32px 0; margin-top: var(--sp-24); color: var(--fg-3); font-size: 13px; }
 
+/* ============================================================
+   RESPONSIVE / MOBILE
+   ============================================================ */
+
+/* tablet: collapse the two-column dashboard/company splits */
 @media (max-width: 900px) {
   .dash-split { grid-template-columns: 1fr !important; }
   :root { --fs-h1: 36px; --fs-display: 44px; }
+  .truncate { max-width: 240px; }
+}
+
+/* phone */
+@media (max-width: 640px) {
+  :root {
+    --gutter: 16px;
+    --fs-h1: 27px; --lh-h1: 1.12;
+    --fs-h2: 24px;
+    --fs-display: 32px;
+    --fs-lead: 16px;
+  }
+
+  .page { padding-top: var(--sp-10); padding-bottom: var(--sp-16); }
+
+  /* nav */
+  .nav-inner { height: 60px; }
+  .nav-brand img { height: 28px; }
+  .nav-brand .name { display: none; }
+  .nav-links { gap: 6px; }
+  .btn-sm { padding: 9px 13px; font-size: 13px; }
+
+  /* page header — stack, full-width primary action */
+  .page-head { gap: 14px; margin-bottom: var(--sp-8); }
+  .page-head .lead { margin-top: 8px; }
+  .page-head .new-link-btn { width: 100%; justify-content: center; }
+
+  .breadcrumb { flex-wrap: wrap; }
+  .section-title { flex-wrap: wrap; margin: var(--sp-8) 0 var(--sp-5); }
+
+  /* stat cards — compact 2-up */
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: var(--sp-8); }
+  .stat { padding: 16px 16px; border-radius: var(--r-md); }
+  .stat .k { font-size: 11px; }
+  .stat .v { font-size: 28px; }
+
+  /* panels / chart */
+  .panel { padding: 18px; }
+  .chart-head { gap: 12px; margin-bottom: 14px; }
+  .legend { gap: 6px; margin-top: 14px; }
+
+  /* 14-day bar chart: thin the x labels so they don't collide */
+  .bars { gap: 4px; }
+  .bars .bar-col:nth-child(even) .bar-label { display: none; }
+  .bar-label { font-size: 10px; }
+
+  /* ---- tables become stacked cards ---- */
+  .table-wrap { border: none; background: transparent; border-radius: 0; overflow: visible; }
+  .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+  .tbl thead { display: none; }
+  .tbl tr {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg);
+    padding: 14px 16px; margin-bottom: 12px; box-shadow: var(--shadow-xs);
+  }
+  .tbl tr:hover td { background: transparent; }
+  .tbl td {
+    border: none; border-bottom: 1px solid var(--surface-3);
+    padding: 9px 0; font-size: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    text-align: right;
+  }
+  .tbl tr td:last-child { border-bottom: none; padding-bottom: 0; }
+  .tbl tr td:first-child { padding-top: 0; }
+  .tbl td::before {
+    content: attr(data-label);
+    flex: none; text-align: left;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--fg-3);
+  }
+  .tbl td[data-label=""]::before { display: none; }
+
+  /* primary (short link) + wide (destination / user-agent) cells stack full width */
+  .tbl td.cell-primary, .tbl td.cell-wide {
+    flex-direction: column; align-items: stretch; gap: 6px; text-align: left;
+  }
+  .tbl td.cell-primary::before { display: none; }
+  .tbl td.cell-wide .truncate {
+    max-width: 100% !important; white-space: normal; word-break: break-word;
+  }
+  .tbl td.cell-primary .copy-link { flex-wrap: wrap; }
+  .tbl td.cell-primary .copy-link-text { white-space: normal; word-break: break-all; }
+
+  .tbl td.td-spark .spark { width: 120px; }
+
+  /* actions row → full-width tappable button */
+  .tbl td.cell-actions { padding-top: 12px; }
+  .tbl td.cell-actions .flex { width: 100%; }
+  .tbl td.cell-actions .btn { width: 100%; justify-content: center; }
+
+  /* modal as a near-full-width sheet */
+  .modal-overlay { padding: 14px; }
+  .modal-card { padding: 22px; border-radius: var(--r-lg); }
+
+  /* login */
+  .login-card { padding: 28px 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

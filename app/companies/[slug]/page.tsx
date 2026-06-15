@@ -1,15 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
-import CreateLinkForm from "@/app/components/CreateLinkForm";
+import NewLinkModal from "@/app/components/NewLinkModal";
 import CopyLink from "@/app/components/CopyLink";
 import ClicksChart from "@/app/components/ClicksChart";
+import Sparkline from "@/app/components/Sparkline";
 import {
   getCompanyBySlug,
   getLinksForCompany,
   getCompanyClickSeries,
 } from "@/lib/data";
 import { displayHost, workingUrl } from "@/lib/url";
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +36,11 @@ export default async function CompanyPage({
   const links = await getLinksForCompany(company.slug);
   const totalClicks = links.reduce((n, l) => n + l.click_count, 0);
   const clickSeries = await getCompanyClickSeries(company.slug, 90);
+
+  // Last-7-day click trend per link, keyed by short code, for the table sparkline.
+  const trendByCode = new Map<string, number[]>(
+    clickSeries.links.map((l) => [l.code, l.daily.slice(-7)])
+  );
 
   return (
     <>
@@ -49,6 +65,7 @@ export default async function CompanyPage({
               </span>
             </p>
           </div>
+          <NewLinkModal slug={company.slug} />
         </div>
 
         <div className="stat-grid">
@@ -64,95 +81,93 @@ export default async function CompanyPage({
 
         {links.length > 0 ? <ClicksChart series={clickSeries} /> : null}
 
-        <div
-          className="dash-split"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) 380px",
-            gap: 32,
-            alignItems: "start",
-          }}
-        >
-          <section>
-            <div className="section-title">
-              <h2 className="h3 mb-0">Links</h2>
+        <section>
+          <div className="section-title">
+            <h2 className="h3 mb-0">Links</h2>
+          </div>
+
+          {links.length === 0 ? (
+            <div className="empty">
+              <h3>No links yet</h3>
+              <p>Create your first short link for {company.name}.</p>
+              <div style={{ marginTop: 16 }}>
+                <NewLinkModal slug={company.slug} />
+              </div>
             </div>
-
-            {links.length === 0 ? (
-              <div className="empty">
-                <h3>No links yet</h3>
-                <p>Create your first short link for {company.name}.</p>
-              </div>
-            ) : (
-              <div className="table-wrap">
-                <table className="tbl">
-                  <thead>
-                    <tr>
-                      <th>Short link</th>
-                      <th>Destination</th>
-                      <th style={{ textAlign: "right" }}>Clicks</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {links.map((l) => {
-                      const working = workingUrl(company.slug, l.short_code);
-                      return (
-                        <tr key={l.id}>
-                          <td>
-                            <CopyLink
-                              value={working}
-                              display={
-                                <>
-                                  {displayHost()}/{company.slug}/
-                                  <span className="host">{l.short_code}</span>
-                                </>
-                              }
-                            />
-                            {l.title ? (
-                              <div className="meta" style={{ marginTop: 4 }}>
-                                {l.title}
-                              </div>
-                            ) : null}
-                          </td>
-                          <td>
-                            <a
-                              href={l.original_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="truncate"
-                              style={{ display: "block", color: "var(--fg-2)" }}
-                              title={l.original_url}
-                            >
-                              {l.original_url}
-                            </a>
-                          </td>
-                          <td className="num" style={{ textAlign: "right" }}>
-                            {l.click_count}
-                          </td>
-                          <td>
-                            <div className="flex gap-2" style={{ justifyContent: "flex-end" }}>
-                              <Link
-                                href={`/companies/${company.slug}/links/${l.id}`}
-                                className="btn btn-ghost btn-sm"
-                              >
-                                Stats
-                              </Link>
+          ) : (
+            <div className="table-wrap">
+              <table className="tbl tbl-links">
+                <thead>
+                  <tr>
+                    <th>Short link</th>
+                    <th>Destination</th>
+                    <th>Created</th>
+                    <th style={{ textAlign: "right" }}>Clicks</th>
+                    <th>Last 7 days</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {links.map((l) => {
+                    const working = workingUrl(company.slug, l.short_code);
+                    const trend = trendByCode.get(l.short_code) ?? [];
+                    return (
+                      <tr key={l.id}>
+                        <td className="cell-primary" data-label="Short link">
+                          <CopyLink
+                            value={working}
+                            display={
+                              <>
+                                {displayHost()}/{company.slug}/
+                                <span className="host">{l.short_code}</span>
+                              </>
+                            }
+                          />
+                          {l.title ? (
+                            <div className="meta" style={{ marginTop: 4 }}>
+                              {l.title}
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-
-          <aside>
-            <CreateLinkForm slug={company.slug} />
-          </aside>
-        </div>
+                          ) : null}
+                        </td>
+                        <td className="cell-wide" data-label="Destination">
+                          <a
+                            href={l.original_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="truncate"
+                            style={{ display: "block", color: "var(--fg-2)" }}
+                            title={l.original_url}
+                          >
+                            {l.original_url}
+                          </a>
+                        </td>
+                        <td className="nowrap" style={{ color: "var(--fg-2)" }} data-label="Created">
+                          {formatDate(l.created_at)}
+                        </td>
+                        <td className="num td-clicks" style={{ textAlign: "right" }} data-label="Clicks">
+                          {l.click_count}
+                        </td>
+                        <td className="td-spark" data-label="Last 7 days">
+                          <Sparkline values={trend} />
+                        </td>
+                        <td className="cell-actions" data-label="">
+                          <div className="flex gap-2" style={{ justifyContent: "flex-end" }}>
+                            <Link
+                              href={`/companies/${company.slug}/links/${l.id}`}
+                              className="btn btn-ghost btn-sm"
+                            >
+                              Stats
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </main>
       <footer className="foot">
         <div className="container">
