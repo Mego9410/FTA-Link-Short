@@ -255,6 +255,26 @@ table.tbl { width: 100%; border-collapse: collapse; }
 .login-card { width: 100%; max-width: 420px; background: #fff; border-radius: var(--r-xl); box-shadow: var(--shadow-lg); padding: 40px; }
 .login-card img { height: 40px; width: auto; margin-bottom: 24px; }
 
+/* click-to-copy link + icon button */
+.copy-link { display: inline-flex; align-items: center; gap: 10px; }
+.copy-link-text {
+  background: none; border: none; padding: 0; margin: 0; font: inherit;
+  cursor: pointer; text-align: left; color: var(--fg-1); white-space: nowrap;
+  border-radius: 4px;
+}
+.copy-link-text:hover { text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+.copy-link-text:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.copy-link-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; flex: none; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: #fff; color: var(--fg-2);
+  cursor: pointer; transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.copy-link-btn:hover { border-color: var(--gold); color: var(--gold-deep); background: var(--gold-tint); }
+.copy-link-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.copy-link-btn svg { width: 16px; height: 16px; }
+.copy-flag { font-size: 12px; font-weight: 700; color: var(--gold-deep); }
+
 /* mini bar chart */
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding: 8px 4px 0; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }

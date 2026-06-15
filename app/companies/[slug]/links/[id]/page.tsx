@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
-import CopyButton from "@/app/components/CopyButton";
+import CopyLink from "@/app/components/CopyLink";
 import { getCompanyBySlug, getLink, getRecentClicks } from "@/lib/data";
 import { displayHost, displayUrl, workingUrl } from "@/lib/url";
 
@@ -67,13 +67,19 @@ export default async function LinkStatsPage({
             <h1 className="h1" style={{ marginTop: 8 }}>
               {link.title || link.short_code}
             </h1>
-            <p className="lead url-pretty">
-              {displayHost()}/{company.slug}/
-              <span className="host">{link.short_code}</span>
-            </p>
+            <div className="lead" style={{ marginTop: 4 }}>
+              <CopyLink
+                value={working}
+                display={
+                  <>
+                    {displayHost()}/{company.slug}/
+                    <span className="host">{link.short_code}</span>
+                  </>
+                }
+              />
+            </div>
           </div>
           <div className="flex gap-2">
-            <CopyButton value={working} label="Copy short link" />
             <a
               href={link.original_url}
               target="_blank"

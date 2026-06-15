@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import CreateLinkForm from "@/app/components/CreateLinkForm";
-import CopyButton from "@/app/components/CopyButton";
+import CopyLink from "@/app/components/CopyLink";
 import { getCompanyBySlug, getLinksForCompany } from "@/lib/data";
 import { displayHost, workingUrl } from "@/lib/url";
 
@@ -92,10 +92,15 @@ export default async function CompanyPage({
                       return (
                         <tr key={l.id}>
                           <td>
-                            <div className="url-pretty">
-                              {displayHost()}/{company.slug}/
-                              <span className="host">{l.short_code}</span>
-                            </div>
+                            <CopyLink
+                              value={working}
+                              display={
+                                <>
+                                  {displayHost()}/{company.slug}/
+                                  <span className="host">{l.short_code}</span>
+                                </>
+                              }
+                            />
                             {l.title ? (
                               <div className="meta" style={{ marginTop: 4 }}>
                                 {l.title}
@@ -119,7 +124,6 @@ export default async function CompanyPage({
                           </td>
                           <td>
                             <div className="flex gap-2" style={{ justifyContent: "flex-end" }}>
-                              <CopyButton value={working} label="Copy" />
                               <Link
                                 href={`/companies/${company.slug}/links/${l.id}`}
                                 className="btn btn-ghost btn-sm"
