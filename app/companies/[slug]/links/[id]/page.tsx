@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import CopyButton from "@/app/components/CopyButton";
 import { getCompanyBySlug, getLink, getRecentClicks } from "@/lib/data";
-import { prettyUrl, workingUrl } from "@/lib/url";
+import { displayHost, displayUrl, workingUrl } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,7 @@ export default async function LinkStatsPage({
   }
   const max = Math.max(1, ...series.map((s) => s.count));
 
-  const pretty = prettyUrl(company.slug, link.short_code);
+  const shortLink = displayUrl(company.slug, link.short_code);
   const working = workingUrl(company.slug, link.short_code);
 
   return (
@@ -68,8 +68,7 @@ export default async function LinkStatsPage({
               {link.title || link.short_code}
             </h1>
             <p className="lead url-pretty">
-              www.<span className="host">{company.slug}</span>.
-              {process.env.NEXT_PUBLIC_BRAND_DOMAIN || "myURL.com"}/
+              {displayHost()}/{company.slug}/
               <span className="host">{link.short_code}</span>
             </p>
           </div>
@@ -135,7 +134,7 @@ export default async function LinkStatsPage({
 
         <div className="section-title">
           <h2 className="h3 mb-0">Recent clicks</h2>
-          <span className="meta">Pretty URL: {pretty}</span>
+          <span className="meta">Short link: {shortLink}</span>
         </div>
 
         {clicks.length === 0 ? (

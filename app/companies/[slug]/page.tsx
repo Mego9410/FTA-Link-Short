@@ -4,7 +4,7 @@ import Nav from "@/app/components/Nav";
 import CreateLinkForm from "@/app/components/CreateLinkForm";
 import CopyButton from "@/app/components/CopyButton";
 import { getCompanyBySlug, getLinksForCompany } from "@/lib/data";
-import { prettyUrl, workingUrl } from "@/lib/url";
+import { displayHost, workingUrl } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +37,9 @@ export default async function CompanyPage({
               {company.name}
             </h1>
             <p className="lead">
-              Branded short links for{" "}
+              Short links for{" "}
               <span className="url-pretty">
-                www.<span className="host">{company.slug}</span>.
-                {process.env.NEXT_PUBLIC_BRAND_DOMAIN || "myURL.com"}
+                {displayHost()}/<span className="host">{company.slug}</span>
               </span>
             </p>
           </div>
@@ -89,14 +88,12 @@ export default async function CompanyPage({
                   </thead>
                   <tbody>
                     {links.map((l) => {
-                      const pretty = prettyUrl(company.slug, l.short_code);
                       const working = workingUrl(company.slug, l.short_code);
                       return (
                         <tr key={l.id}>
                           <td>
                             <div className="url-pretty">
-                              www.<span className="host">{company.slug}</span>.
-                              {process.env.NEXT_PUBLIC_BRAND_DOMAIN || "myURL.com"}/
+                              {displayHost()}/{company.slug}/
                               <span className="host">{l.short_code}</span>
                             </div>
                             {l.title ? (
@@ -126,7 +123,6 @@ export default async function CompanyPage({
                               <Link
                                 href={`/companies/${company.slug}/links/${l.id}`}
                                 className="btn btn-ghost btn-sm"
-                                title={`Pretty: ${pretty}`}
                               >
                                 Stats
                               </Link>

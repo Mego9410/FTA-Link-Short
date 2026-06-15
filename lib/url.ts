@@ -1,16 +1,23 @@
-/** Display-only "pretty" link: www.{slug}.{brandDomain}/{code} */
-export function prettyUrl(slug: string, code: string): string {
-  const domain = process.env.NEXT_PUBLIC_BRAND_DOMAIN || "myURL.com";
-  return `www.${slug}.${domain}/${code}`;
-}
-
-/** The actual working short link that resolves the redirect. */
-export function workingUrl(slug: string, code: string): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(
+function siteBase(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(
     /\/+$/,
     ""
   );
-  return `${base}/${slug}/${code}`;
+}
+
+/** The deployment host without scheme, e.g. "fta-link.vercel.app". */
+export function displayHost(): string {
+  return siteBase().replace(/^https?:\/\//, "");
+}
+
+/** The actual working short link (with scheme) — used for copying and links. */
+export function workingUrl(slug: string, code: string): string {
+  return `${siteBase()}/${slug}/${code}`;
+}
+
+/** Display version of the short link without the scheme, e.g. host/slug/code. */
+export function displayUrl(slug: string, code: string): string {
+  return `${displayHost()}/${slug}/${code}`;
 }
 
 /**

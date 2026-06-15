@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { createCompany, type ActionState } from "@/app/actions";
 import { slugify } from "@/lib/slug";
+import { displayHost } from "@/lib/url";
 import { useState } from "react";
 
 export default function CreateCompanyForm() {
@@ -11,7 +12,7 @@ export default function CreateCompanyForm() {
     null
   );
   const [name, setName] = useState("");
-  const brandDomain = process.env.NEXT_PUBLIC_BRAND_DOMAIN || "myURL.com";
+  const host = displayHost();
   const preview = name ? slugify(name) : "";
 
   return (
@@ -38,7 +39,7 @@ export default function CreateCompanyForm() {
             <>
               Links will look like{" "}
               <span className="url-pretty">
-                www.<span className="host">{preview}</span>.{brandDomain}/abc123
+                {host}/<span className="host">{preview}</span>/abc123
               </span>
             </>
           ) : (

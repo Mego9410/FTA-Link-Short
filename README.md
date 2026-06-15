@@ -5,18 +5,14 @@ short links under each company, and track clicks — all behind a single hardcod
 (no user accounts). Built with Next.js (App Router), styled with the FTA design system
 (gold `#E4AD25` on near-black ink, Hanken Grotesk).
 
-Each link is displayed in the branded form:
-
-```
-www.{business-slug}.myURL.com/{short-code}
-```
-
-The brand domain is a configurable display format. The link that actually resolves is
-path-based on this app's own origin:
+Each company gets short links under its own path on the app's domain:
 
 ```
 {your-app-origin}/{business-slug}/{short-code}
 ```
+
+For example, on the deployed Vercel domain: `fta-link.vercel.app/acme-dental/HaB7hs`.
+The displayed link and the working link are the same, set by `NEXT_PUBLIC_SITE_URL`.
 
 ## Storage (no separate database to manage)
 
@@ -63,7 +59,6 @@ Copy `.env.example` to `.env.local`. For local dev you only need:
 
 ```env
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_BRAND_DOMAIN=myURL.com
 APP_PASSWORD=choose-a-password
 # leave the UPSTASH_* variables blank to use the local file store
 ```
@@ -84,15 +79,12 @@ Your data lives in `./.data/db.json` (git-ignored).
    database, then **connect** it to the project. This injects `UPSTASH_REDIS_REST_URL` and
    `UPSTASH_REDIS_REST_TOKEN` automatically.
 3. Add the remaining env vars in the Vercel project settings:
-   - `NEXT_PUBLIC_SITE_URL` = your deployed URL (e.g. `https://your-app.vercel.app`)
-   - `NEXT_PUBLIC_BRAND_DOMAIN` = `myURL.com` (or your chosen display domain)
+   - `NEXT_PUBLIC_SITE_URL` = your deployed URL (e.g. `https://fta-link.vercel.app`)
    - `APP_PASSWORD` = your shared password
-4. Deploy. Short links resolve at `https://your-app.vercel.app/{slug}/{code}` and persist in
+4. Deploy. Short links resolve at `https://fta-link.vercel.app/{slug}/{code}` and persist in
    Redis.
 
-## Upgrading to real subdomains (later)
+## Upgrading to a custom domain (optional)
 
-To make `business.myURL.com` genuinely resolve: point a wildcard DNS record `*.myURL.com`
-at the app, add the wildcard domain in Vercel, and update `middleware.ts` to read the
-company slug from the `Host` header instead of the first path segment. The storage layer and
-dashboard stay the same.
+If you ever add a custom domain in Vercel, just set `NEXT_PUBLIC_SITE_URL` to it and the
+displayed/working links update automatically. No code changes needed.
