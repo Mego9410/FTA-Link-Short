@@ -13,6 +13,10 @@ export interface Store {
   listCompanies(): Promise<Company[]>;
   getCompany(slug: string): Promise<Company | null>;
   createCompany(name: string): Promise<CreateResult<Company>>;
+  /** Update a company's display name. The slug is kept stable so links keep working. */
+  renameCompany(slug: string, name: string): Promise<CreateResult<Company>>;
+  /** Delete a company along with all of its links and click history. */
+  deleteCompany(slug: string): Promise<void>;
 
   listLinks(slug: string): Promise<LinkRow[]>;
   getLink(slug: string, code: string): Promise<LinkRow | null>;
@@ -21,6 +25,8 @@ export interface Store {
     originalUrl: string,
     title: string | null
   ): Promise<CreateResult<LinkRow>>;
+  /** Delete a single link and its click history. */
+  deleteLink(slug: string, code: string): Promise<void>;
 
   /** Resolve a short link for redirecting, then record the click. */
   resolveAndTrack(

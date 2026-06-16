@@ -114,6 +114,30 @@ export const fileStore: Store = {
     });
   },
 
+  async renameCompany(slug: string, name: string): Promise<CreateResult<Company>> {
+    const trimmed = name.trim();
+    if (!trimmed) return { ok: false, error: "Please enter a business name." };
+
+    return withLock(async () => {
+      const db = await readDB();
+      const company = db.companies.find((c) => c.slug === slug);
+      if (!company) return { ok: false, error: "Company not found." };
+      company.name = trimmed;
+      await writeDB(db);
+      return { ok: true, value: { id: company.slug, ...company } };
+    });
+  },
+
+  async deleteCompany(slug: string): Promise<void> {
+    await withLock(async () => {
+      const db = await readDB();
+      db.companies = db.companies.filter((c) => c.slug !== slug);
+      db.links = db.links.filter((l) => l.slug !== slug);
+      db.clicks = db.clicks.filter((c) => c.slug !== slug);
+      await writeDB(db);
+    });
+  },
+
   async listLinks(slug: string): Promise<LinkRow[]> {
     const db = await readDB();
     return db.links
@@ -156,6 +180,15 @@ export const fileStore: Store = {
       db.links.push(link);
       await writeDB(db);
       return { ok: true, value: toLinkRow(db, link) };
+    });
+  },
+
+  async deleteLink(slug: string, code: string): Promise<void> {
+    await withLock(async () => {
+      const db = await readDB();
+      db.links = db.links.filter((l) => !(l.slug === slug && l.code === code));
+      db.clicks = db.clicks.filter((c) => !(c.slug === slug && c.code === code));
+      await writeDB(db);
     });
   },
 

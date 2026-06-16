@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import NewLinkModal from "@/app/components/NewLinkModal";
+import CompanyActions from "@/app/components/CompanyActions";
+import DeleteLinkButton from "@/app/components/DeleteLinkButton";
 import CopyLink from "@/app/components/CopyLink";
 import ClicksChart from "@/app/components/ClicksChart";
 import Sparkline from "@/app/components/Sparkline";
@@ -65,7 +67,10 @@ export default async function CompanyPage({
               </span>
             </p>
           </div>
-          <NewLinkModal slug={company.slug} />
+          <div className="head-actions">
+            <CompanyActions slug={company.slug} name={company.name} />
+            <NewLinkModal slug={company.slug} />
+          </div>
         </div>
 
         <div className="stat-grid">
@@ -158,6 +163,11 @@ export default async function CompanyPage({
                             >
                               Stats
                             </Link>
+                            <DeleteLinkButton
+                              slug={company.slug}
+                              code={l.short_code}
+                              label={l.title || l.short_code}
+                            />
                           </div>
                         </td>
                       </tr>

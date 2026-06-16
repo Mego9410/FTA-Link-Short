@@ -102,6 +102,32 @@ export const redisStore: Store = {
     return { ok: true, value: { id: slug, ...company } };
   },
 
+  async renameCompany(slug: string, name: string): Promise<CreateResult<Company>> {
+    const trimmed = name.trim();
+    if (!trimmed) return { ok: false, error: "Please enter a business name." };
+
+    const r = redis();
+    const company = await r.get<StoredCompany>(kCompany(slug));
+    if (!company) return { ok: false, error: "Company not found." };
+    const updated: StoredCompany = { ...company, name: trimmed };
+    await r.set(kCompany(slug), updated);
+    return { ok: true, value: { id: slug, ...updated } };
+  },
+
+  async deleteCompany(slug: string): Promise<void> {
+    const r = redis();
+    const codes = await r.zrange<string[]>(kLinks(slug), 0, -1);
+    const keys: string[] = [];
+    for (const code of codes) {
+      keys.push(kLink(slug, code), kCount(slug, code), kClicks(slug, code));
+    }
+    keys.push(kLinks(slug), kCompany(slug), kCompanyClicks(slug));
+    const pipe = r.pipeline();
+    pipe.del(...keys);
+    pipe.zrem(kCompanies, slug);
+    await pipe.exec();
+  },
+
   async listLinks(slug: string): Promise<LinkRow[]> {
     const r = redis();
     const codes = await r.zrange<string[]>(kLinks(slug), 0, -1, { rev: true });
@@ -142,6 +168,18 @@ export const redisStore: Store = {
     await r.set(kLink(slug, code), link);
     await r.zadd(kLinks(slug), { score: Date.now(), member: code });
     return { ok: true, value: await linkRow(r, link) };
+  },
+
+  async deleteLink(slug: string, code: string): Promise<void> {
+    const r = redis();
+    // Keep the company-wide click counter consistent by subtracting this
+    // link's clicks before removing its keys.
+    const count = (await r.get<number>(kCount(slug, code))) ?? 0;
+    const pipe = r.pipeline();
+    pipe.del(kLink(slug, code), kCount(slug, code), kClicks(slug, code));
+    pipe.zrem(kLinks(slug), code);
+    if (count > 0) pipe.decrby(kCompanyClicks(slug), count);
+    await pipe.exec();
   },
 
   async resolveAndTrack(

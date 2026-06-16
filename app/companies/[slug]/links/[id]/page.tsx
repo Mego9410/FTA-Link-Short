@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import CopyLink from "@/app/components/CopyLink";
+import DeleteLinkButton from "@/app/components/DeleteLinkButton";
 import { getCompanyBySlug, getLink, getRecentClicks } from "@/lib/data";
 import { displayHost, displayUrl, workingUrl } from "@/lib/url";
 
@@ -79,7 +80,7 @@ export default async function LinkStatsPage({
               />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="head-actions">
             <a
               href={link.original_url}
               target="_blank"
@@ -88,6 +89,12 @@ export default async function LinkStatsPage({
             >
               Open destination
             </a>
+            <DeleteLinkButton
+              slug={company.slug}
+              code={link.short_code}
+              label={link.title || link.short_code}
+              variant="button"
+            />
           </div>
         </div>
 

@@ -93,3 +93,46 @@ export async function createLink(
   revalidatePath("/");
   return null;
 }
+
+export async function renameCompany(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const unavailable = storageUnavailable();
+  if (unavailable) return unavailable;
+
+  const slug = String(formData.get("slug") ?? "");
+  const name = String(formData.get("name") ?? "");
+  if (!slug) return { error: "Missing company. Please reload and retry." };
+
+  const result = await store.renameCompany(slug, name);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/companies/${slug}`);
+  revalidatePath("/");
+  return null;
+}
+
+export async function deleteCompany(formData: FormData): Promise<void> {
+  if (storageUnavailable()) return;
+
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+
+  await store.deleteCompany(slug);
+  revalidatePath("/");
+  redirect("/");
+}
+
+export async function deleteLink(formData: FormData): Promise<void> {
+  if (storageUnavailable()) return;
+
+  const slug = String(formData.get("slug") ?? "");
+  const code = String(formData.get("code") ?? "");
+  if (!slug || !code) return;
+
+  await store.deleteLink(slug, code);
+  revalidatePath(`/companies/${slug}`);
+  revalidatePath("/");
+  redirect(`/companies/${slug}`);
+}

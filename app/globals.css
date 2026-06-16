@@ -34,6 +34,9 @@
   --available: #2DD443;
   --available-fg: #1AA836;
   --star: #E4AD25;
+  --danger: #C0392B;
+  --danger-deep: #97271F;
+  --danger-tint: #FDECEC;
 
   /* ----- TYPE FAMILIES ----- */
   --font-sans: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -143,8 +146,28 @@ a { color: inherit; text-decoration: none; }
 .btn-ghost { background: transparent; color: var(--ink); border-color: transparent; padding-left: 6px; padding-right: 6px; }
 .btn-ghost:hover { color: var(--gold-deep); }
 
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: var(--danger-deep); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-danger-ghost { background: #fff; color: var(--danger); border-color: var(--border); }
+.btn-danger-ghost:hover { background: var(--danger-tint); color: var(--danger-deep); border-color: var(--danger); }
+
 .btn-sm { padding: 10px 16px; font-size: 14px; }
 .btn-lg { padding: 17px 28px; font-size: 16px; }
+
+.icon-btn svg { width: 15px; height: 15px; }
+
+/* compact square icon button (e.g. delete in a table row) */
+.icon-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex: none; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: #fff; color: var(--fg-2); cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.icon-action svg { width: 16px; height: 16px; }
+.icon-action:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.icon-action.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-tint); }
+.icon-action.danger:focus-visible { outline-color: var(--danger); }
 
 /* ---------- BADGES / PILLS ---------- */
 .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: var(--r-pill); letter-spacing: .01em; }
@@ -197,6 +220,7 @@ a { color: inherit; text-decoration: none; }
 .page { padding-top: var(--sp-16); padding-bottom: var(--sp-24); }
 .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: var(--sp-10); flex-wrap: wrap; }
 .page-head .lead { margin-top: 10px; max-width: 620px; }
+.head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 
 .breadcrumb { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-3); margin-bottom: 14px; }
 .breadcrumb a:hover { color: var(--gold-deep); }
@@ -381,7 +405,9 @@ table.tbl { width: 100%; border-collapse: collapse; }
   /* page header — stack, full-width primary action */
   .page-head { gap: 14px; margin-bottom: var(--sp-8); }
   .page-head .lead { margin-top: 8px; }
-  .page-head .new-link-btn { width: 100%; justify-content: center; }
+  .page-head .head-actions { width: 100%; justify-content: stretch; }
+  .head-actions > .btn { flex: 1 1 0; justify-content: center; }
+  .head-actions .new-link-btn { flex-basis: 100%; width: 100%; }
 
   .breadcrumb { flex-wrap: wrap; }
   .section-title { flex-wrap: wrap; margin: var(--sp-8) 0 var(--sp-5); }
@@ -440,10 +466,10 @@ table.tbl { width: 100%; border-collapse: collapse; }
 
   .tbl td.td-spark .spark { width: 120px; }
 
-  /* actions row → full-width tappable button */
+  /* actions row → Stats grows, delete stays compact */
   .tbl td.cell-actions { padding-top: 12px; }
   .tbl td.cell-actions .flex { width: 100%; }
-  .tbl td.cell-actions .btn { width: 100%; justify-content: center; }
+  .tbl td.cell-actions .btn { flex: 1; justify-content: center; }
 
   /* modal as a near-full-width sheet */
   .modal-overlay { padding: 14px; }
